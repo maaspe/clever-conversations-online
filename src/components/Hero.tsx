@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import ChatDemo from './ChatDemo';
 
@@ -19,11 +20,11 @@ const Hero = () => {
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button className="bg-gradient-to-r from-aipurple-600 to-aiteal-500 text-white px-8 py-6 text-lg">
-                Try for Free
+              <Button className="bg-gradient-to-r from-aipurple-600 to-aiteal-500 text-white px-8 py-6 text-lg" asChild>
+                <Link to="/chat">Try for Free</Link>
               </Button>
-              <Button variant="outline" className="px-8 py-6 text-lg">
-                View Demo
+              <Button variant="outline" className="px-8 py-6 text-lg" asChild>
+                <Link to="/chat">View Demo</Link>
               </Button>
             </div>
             <div className="flex items-center gap-4 text-sm">
