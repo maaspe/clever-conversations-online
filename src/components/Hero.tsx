@@ -6,7 +6,7 @@ import ChatDemo from './ChatDemo';
 
 const Hero = () => {
   return (
-    <section className="pt-24 pb-16 md:pt-32 md:pb-24">
+    <section className="pt-32 pb-16 md:pt-36 md:pb-24">
       <div className="container px-4 md:px-6">
         <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
           <div className="space-y-6">

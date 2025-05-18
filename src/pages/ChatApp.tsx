@@ -31,6 +31,7 @@ const ChatApp = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [promptCount, setPromptCount] = useState(0);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [promptLimitReached, setPromptLimitReached] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -43,7 +44,13 @@ const ChatApp = () => {
   useEffect(() => {
     const storedCount = localStorage.getItem('promptCount');
     if (storedCount) {
-      setPromptCount(parseInt(storedCount, 10));
+      const count = parseInt(storedCount, 10);
+      setPromptCount(count);
+      
+      // Check if prompt limit reached on initial load
+      if (count >= 3) {
+        setPromptLimitReached(true);
+      }
     }
   }, []);
 
@@ -51,14 +58,15 @@ const ChatApp = () => {
   useEffect(() => {
     localStorage.setItem('promptCount', promptCount.toString());
     
-    // Show login dialog after 3 prompts
+    // Show login dialog and update prompt limit status when count reaches 3
     if (promptCount >= 3) {
       setShowLoginDialog(true);
+      setPromptLimitReached(true);
     }
   }, [promptCount]);
 
   const handleSend = () => {
-    if (input.trim() === '') return;
+    if (input.trim() === '' || promptLimitReached) return;
     
     // Add user message
     const userMessage: Message = {
@@ -70,10 +78,25 @@ const ChatApp = () => {
     
     setMessages(prev => [...prev, userMessage]);
     setInput('');
-    setIsTyping(true);
     
     // Increment prompt count
-    setPromptCount(prev => prev + 1);
+    const newCount = promptCount + 1;
+    setPromptCount(newCount);
+    
+    // Check if this is the 3rd prompt (limit reached)
+    if (newCount >= 3) {
+      setPromptLimitReached(true);
+      setIsTyping(false);
+      toast({
+        title: "Free trial ended",
+        description: "You've reached your free prompts limit. Please sign in to continue.",
+        variant: "destructive",
+        duration: 5000,
+      });
+      return;
+    }
+    
+    setIsTyping(true);
     
     // Sample responses for demo
     const responses = [
@@ -118,7 +141,7 @@ const ChatApp = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 container mx-auto px-4 py-8">
+      <main className="flex-1 container mx-auto px-4 py-8 pt-24">
         <div className="bg-card rounded-xl border shadow-sm max-w-4xl mx-auto flex flex-col h-[calc(100vh-200px)]">
           <div className="p-4 border-b">
             <h2 className="font-semibold text-lg">AI Chat Assistant</h2>
@@ -167,16 +190,21 @@ const ChatApp = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Type your message here..."
+                placeholder={promptLimitReached ? "Sign in to continue..." : "Type your message here..."}
                 className="flex-1"
+                disabled={promptLimitReached}
               />
-              <Button onClick={handleSend} disabled={isTyping}>
+              <Button 
+                onClick={handleSend} 
+                disabled={isTyping || promptLimitReached}
+                className={promptLimitReached ? "bg-gray-400 hover:bg-gray-400 cursor-not-allowed" : ""}
+              >
                 <Send className="h-4 w-4" />
               </Button>
             </div>
             <div className="mt-2 text-xs text-muted-foreground">
-              {promptCount >= 3 ? (
-                <span>You've used 3/3 free prompts. Sign in to continue.</span>
+              {promptLimitReached ? (
+                <span className="text-destructive font-medium">You've used 3/3 free prompts. Sign in to continue.</span>
               ) : (
                 <span>You've used {promptCount}/3 free prompts.</span>
               )}
