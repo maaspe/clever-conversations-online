@@ -90,4 +90,33 @@
   .glass-card {
     @apply bg-white/70 dark:bg-black/30 backdrop-blur-md border border-white/20 dark:border-white/10;
   }
+  
+  /* Add transition for theme switching */
+  .theme-transition {
+    @apply transition-colors duration-300;
+  }
+  
+  /* Special styling for dark mode elements */
+  .dark .chat-bubble-user {
+    @apply shadow-lg shadow-primary/20;
+  }
+  
+  .dark .chat-bubble-bot {
+    @apply shadow-md shadow-black/10;
+  }
+  
+  .dark .hover-effect {
+    @apply hover:bg-white/5;
+  }
+  
+  .light .hover-effect {
+    @apply hover:bg-black/5;
+  }
+}
+
+/* Add smooth transitions for all color changes */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
 }

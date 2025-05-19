@@ -8,6 +8,7 @@ import ChatInput from '@/components/chat/ChatInput';
 import LoginDialog from '@/components/chat/LoginDialog';
 import { ChatHistoryItem, Message, User } from '@/components/chat/types';
 import { getInitialChatHistory, processChatMessage, createNewChat } from '@/services/chatService';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 
 const ChatApp = () => {
   // User state
@@ -101,7 +102,8 @@ const ChatApp = () => {
 
   const handleNewChat = () => {
     const newChat = createNewChat(chatHistory);
-    setChatHistory([...chatHistory, newChat]);
+    // Add the new chat at the beginning of the array, not the end
+    setChatHistory([newChat, ...chatHistory]);
     setActiveChat(newChat.id);
     setMessages(newChat.messages);
   };
@@ -113,45 +115,55 @@ const ChatApp = () => {
   const toggleSidebar = () => {
     setShowSidebar(!showSidebar);
   };
+  
+  const handleUpdateUser = (updatedUser: User) => {
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+  };
 
   return (
-    <SidebarProvider>
-      <div className="flex flex-col h-screen">
-        <ChatHeader 
-          toggleSidebar={toggleSidebar} 
-          userName={user ? user.name : 'Guest'}
-        />
-        
-        <div className="flex flex-1 overflow-hidden">
-          <ChatSidebar 
-            chatHistory={chatHistory}
-            onSelectChat={handleSelectChat}
-            onNewChat={handleNewChat}
-            activeChat={activeChat}
-            collapsed={!showSidebar}
+    <ThemeProvider>
+      <SidebarProvider>
+        <div className="flex flex-col h-screen bg-background text-foreground">
+          <ChatHeader 
+            toggleSidebar={toggleSidebar} 
+            user={user}
+            onUpdateUser={handleUpdateUser}
           />
           
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <ChatMessages 
-              messages={messages} 
-              isTyping={isTyping} 
+          <div className="flex flex-1 overflow-hidden">
+            <ChatSidebar 
+              chatHistory={chatHistory}
+              onSelectChat={handleSelectChat}
+              onNewChat={handleNewChat}
+              activeChat={activeChat}
+              collapsed={!showSidebar}
+              user={user}
             />
             
-            <ChatInput 
-              onSendMessage={handleSend}
-              isTyping={isTyping}
-              promptCount={promptCount}
-              isLoggedIn={!!user}
-            />
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <ChatMessages 
+                messages={messages} 
+                isTyping={isTyping} 
+                user={user}
+              />
+              
+              <ChatInput 
+                onSendMessage={handleSend}
+                isTyping={isTyping}
+                promptCount={promptCount}
+                isLoggedIn={!!user}
+              />
+            </div>
           </div>
-        </div>
 
-        <LoginDialog 
-          open={showLoginDialog} 
-          onOpenChange={setShowLoginDialog}
-        />
-      </div>
-    </SidebarProvider>
+          <LoginDialog 
+            open={showLoginDialog} 
+            onOpenChange={setShowLoginDialog}
+          />
+        </div>
+      </SidebarProvider>
+    </ThemeProvider>
   );
 };
 

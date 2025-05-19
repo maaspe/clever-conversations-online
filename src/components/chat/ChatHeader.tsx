@@ -1,35 +1,21 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, LogOut, User, Moon, Sun, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
 import { toast } from "@/hooks/use-toast";
+import { User } from './types';
+import UserProfileMenu from './UserProfileMenu';
+import UserSettingsPanel from './UserSettingsPanel';
 
 interface ChatHeaderProps {
   toggleSidebar: () => void;
-  userName: string;
+  user: User | null;
+  onUpdateUser: (updatedUser: User) => void;
 }
 
-const ChatHeader = ({ toggleSidebar, userName }: ChatHeaderProps) => {
-  const [theme, setTheme] = useState('light');
+const ChatHeader = ({ toggleSidebar, user, onUpdateUser }: ChatHeaderProps) => {
   const navigate = useNavigate();
-
-  const handleThemeToggle = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-    // In a real app, this would update the theme in the DOM and save preference
-    toast({
-      title: `Theme changed to ${theme === 'light' ? 'dark' : 'light'}`,
-      description: "This is a demo. Theme switching functionality not fully implemented.",
-    });
-  };
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -41,7 +27,7 @@ const ChatHeader = ({ toggleSidebar, userName }: ChatHeaderProps) => {
   };
 
   return (
-    <header className="h-16 border-b flex items-center justify-between px-4">
+    <header className="h-16 border-b flex items-center justify-between px-4 bg-background">
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="icon" onClick={toggleSidebar}>
           <Menu className="h-5 w-5" />
@@ -53,47 +39,17 @@ const ChatHeader = ({ toggleSidebar, userName }: ChatHeaderProps) => {
         </div>
       </div>
       
-      <div className="flex items-center gap-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Settings className="h-5 w-5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={handleThemeToggle}>
-              {theme === 'light' ? (
-                <>
-                  <Moon className="mr-2 h-4 w-4" />
-                  <span>Dark mode</span>
-                </>
-              ) : (
-                <>
-                  <Sun className="mr-2 h-4 w-4" />
-                  <span>Light mode</span>
-                </>
-              )}
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <User className="mr-2 h-4 w-4" />
-              <span>Profile settings</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <div className="flex items-center gap-3">
+        <UserSettingsPanel 
+          user={user} 
+          onUpdateUser={onUpdateUser}
+          onLogout={handleLogout}
+        />
         
-        <span className="text-sm font-medium mr-2">{userName}</span>
-        
-        <Avatar>
-          <AvatarImage src="" />
-          <AvatarFallback className="bg-primary text-primary-foreground">
-            {userName.charAt(0).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
+        <UserProfileMenu 
+          user={user} 
+          onLogout={handleLogout}
+        />
       </div>
     </header>
   );
