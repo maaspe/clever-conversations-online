@@ -49,7 +49,6 @@ const ChatMessages = ({ messages, isTyping, user }: ChatMessagesProps) => {
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
         backgroundBlendMode: 'soft-light',
-        backgroundOpacity: '0.1',
         opacity: '0.15'
       } : {}}
     >
