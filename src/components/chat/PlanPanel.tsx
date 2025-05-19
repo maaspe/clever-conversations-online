@@ -12,7 +12,10 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { BadgeCheck, Star, Crown, Building, CreditCard } from 'lucide-react';
+import { BadgeCheck, Star, Crown, Building, Package } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import Pricing from '@/components/Pricing';
+import { toast } from "@/hooks/use-toast";
 
 interface PlanPanelProps {
   user: User | null;
@@ -48,77 +51,101 @@ const planInfo = {
 const PlanPanel = ({ user }: PlanPanelProps) => {
   const currentPlan = user?.plan?.type || 'free';
   const PlanIcon = planInfo[currentPlan].icon;
+  const [showUpgradeDialog, setShowUpgradeDialog] = React.useState(false);
+  
+  const handleUpgrade = () => {
+    setShowUpgradeDialog(true);
+  };
   
   return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="absolute bottom-4 left-4 rounded-full">
-          <CreditCard className="h-5 w-5" />
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="left" className="w-[340px] sm:w-[400px]">
-        <SheetHeader>
-          <SheetTitle>Your Subscription</SheetTitle>
-          <SheetDescription>
-            View and manage your subscription plan
-          </SheetDescription>
-        </SheetHeader>
-        
-        <div className="py-6">
-          <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 mb-6">
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-full bg-muted ${planInfo[currentPlan].color}`}>
-                <PlanIcon className="h-5 w-5" />
+    <>
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button variant="ghost" className="absolute bottom-4 left-4 flex items-center gap-2 px-3 py-2 rounded-full">
+            <Package className="h-5 w-5" />
+            <span className="text-sm">Plan & Subscription</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-[340px] sm:w-[400px]">
+          <SheetHeader>
+            <SheetTitle>Your Subscription</SheetTitle>
+            <SheetDescription>
+              View and manage your subscription plan
+            </SheetDescription>
+          </SheetHeader>
+          
+          <div className="py-6">
+            <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 mb-6">
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-full bg-muted ${planInfo[currentPlan].color}`}>
+                  <PlanIcon className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-medium">{planInfo[currentPlan].name}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {currentPlan === 'free' ? 'Free forever' : 'Active subscription'}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-medium">{planInfo[currentPlan].name}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {currentPlan === 'free' ? 'Free forever' : 'Active subscription'}
-                </p>
-              </div>
+              
+              {currentPlan === 'free' && (
+                <Button 
+                  size="sm" 
+                  className="bg-gradient-to-r from-aipurple-600 to-aiteal-400 hover:opacity-90"
+                  onClick={handleUpgrade}
+                >
+                  Upgrade
+                </Button>
+              )}
             </div>
             
-            {currentPlan === 'free' && (
-              <Button size="sm" className="bg-gradient-to-r from-aipurple-600 to-aiteal-400 hover:opacity-90">
-                Upgrade
-              </Button>
+            <h4 className="font-medium mb-2">Plan features:</h4>
+            <ul className="space-y-2 mb-6">
+              {planInfo[currentPlan].features.map((feature, index) => (
+                <li key={index} className="flex items-center gap-2 text-sm">
+                  <BadgeCheck className="h-4 w-4 text-primary" />
+                  {feature}
+                </li>
+              ))}
+            </ul>
+            
+            {currentPlan !== 'free' && (
+              <div className="border-t pt-4 mt-4">
+                <h4 className="font-medium mb-2">Billing information</h4>
+                <p className="text-sm text-muted-foreground mb-1">Next billing date: June 15, 2025</p>
+                <p className="text-sm text-muted-foreground">Payment method: •••• 4242</p>
+                <div className="mt-3">
+                  <Button variant="outline" size="sm">Manage billing</Button>
+                </div>
+              </div>
             )}
           </div>
           
-          <h4 className="font-medium mb-2">Plan features:</h4>
-          <ul className="space-y-2 mb-6">
-            {planInfo[currentPlan].features.map((feature, index) => (
-              <li key={index} className="flex items-center gap-2 text-sm">
-                <BadgeCheck className="h-4 w-4 text-primary" />
-                {feature}
-              </li>
-            ))}
-          </ul>
-          
-          {currentPlan !== 'free' && (
-            <div className="border-t pt-4 mt-4">
-              <h4 className="font-medium mb-2">Billing information</h4>
-              <p className="text-sm text-muted-foreground mb-1">Next billing date: June 15, 2025</p>
-              <p className="text-sm text-muted-foreground">Payment method: •••• 4242</p>
-              <div className="mt-3">
-                <Button variant="outline" size="sm">Manage billing</Button>
-              </div>
-            </div>
-          )}
-        </div>
-        
-        <SheetFooter>
-          <SheetClose asChild>
-            <Button variant="outline">Close</Button>
-          </SheetClose>
-          {currentPlan !== 'free' && (
-            <Button variant="ghost" className="text-destructive hover:text-destructive">
-              Cancel subscription
-            </Button>
-          )}
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+          <SheetFooter>
+            <SheetClose asChild>
+              <Button variant="outline">Close</Button>
+            </SheetClose>
+            {currentPlan !== 'free' && (
+              <Button variant="ghost" className="text-destructive hover:text-destructive">
+                Cancel subscription
+              </Button>
+            )}
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+
+      <Dialog open={showUpgradeDialog} onOpenChange={setShowUpgradeDialog}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Upgrade Your Plan</DialogTitle>
+            <DialogDescription>
+              Choose the plan that works best for your needs
+            </DialogDescription>
+          </DialogHeader>
+          <Pricing />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
