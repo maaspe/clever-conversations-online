@@ -32,31 +32,38 @@ const ChatMessages = ({ messages, isTyping, user }: ChatMessagesProps) => {
   const displayName = user?.displayName || user?.name || 'there';
 
   return (
-    <div 
-      className={`flex-1 overflow-y-auto p-4 space-y-4 transition-colors duration-300 ${
-        hasInteraction ? (isDarkMode ? 'bg-black/10' : 'bg-black/5') : ''
-      }`}
-    >
-      {messages.length === 0 && !isTyping ? (
-        <div className="h-full flex flex-col items-center justify-center">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-r from-aipurple-600 to-aiteal-400 mb-6 flex items-center justify-center">
-            <span className="text-white text-2xl font-bold">AI</span>
-          </div>
-          
-          <h3 className="text-xl font-semibold mb-2">Welcome to AiChat</h3>
-          <p className="text-muted-foreground mb-6">How may I help you{displayName !== 'there' ? ', ' + displayName : ''}?</p>
+    <>
+      {/* Sticky greeting header - only show when no messages */}
+      {messages.length === 0 && !isTyping && (
+        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b px-4 py-3">
+          <h2 className="text-xl font-semibold text-center">
+            How may I help you{displayName !== 'there' ? ', ' + displayName : ''}?
+          </h2>
         </div>
-      ) : (
-        <>
-          {messages.map(message => (
-            <ChatMessage key={message.id} message={message} />
-          ))}
-          
-          {isTyping && <TypingIndicator />}
-        </>
       )}
-      <div ref={messagesEndRef} />
-    </div>
+      
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 transition-colors duration-300">
+        {messages.length === 0 && !isTyping ? (
+          <div className="h-full flex flex-col items-center justify-center">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-r from-aipurple-600 to-aiteal-400 mb-6 flex items-center justify-center">
+              <span className="text-white text-2xl font-bold">AI</span>
+            </div>
+            
+            <h3 className="text-xl font-semibold mb-2">Welcome to AiChat</h3>
+            <p className="text-muted-foreground mb-6">Start a conversation to get help with anything you need.</p>
+          </div>
+        ) : (
+          <>
+            {messages.map(message => (
+              <ChatMessage key={message.id} message={message} />
+            ))}
+            
+            {isTyping && <TypingIndicator />}
+          </>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+    </>
   );
 };
 
